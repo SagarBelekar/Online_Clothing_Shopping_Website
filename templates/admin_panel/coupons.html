@@ -1,0 +1,44 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% block admin_content %}
+<h2 class="fw-bold mb-4">Promotions & Coupons</h2>
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-3">Create Promo Code</h5>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Coupon Code</label>
+                    <input type="text" name="code" class="form-control text-uppercase" placeholder="FESTIVE20" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Discount Percentage (%)</label>
+                    <input type="number" name="discount" min="1" max="90" class="form-control" placeholder="20" required>
+                </div>
+                <button type="submit" class="btn btn-dark w-100">Activate Coupon</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>Code</th><th>Discount</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for c in coupons %}
+                    <tr>
+                        <td><code>{{ c.code }}</code></td>
+                        <td>{{ c.discount_percent }}% OFF</td>
+                        <td><span class="badge bg-success">Active</span></td>
+                        <td><a href="{% url 'admin_delete_coupon' c.id %}" class="btn btn-sm btn-outline-danger">Remove</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-muted text-center py-3">No active coupons.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <!-- Product Grid (Full Width 4 Columns) -->
+    <div class="col-12">
+        <h4 class="fw-bold mb-3">Collections</h4>
+        <div class="row g-3">
+            {% for product in products %}
+            <!-- 4 Columns layout: col-lg-3 col-md-4 col-sm-6 col-6 -->
+            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ product.name }}</h6>
+                        <p class="text-muted small mb-2">{{ product.category.category_name }}</p>
+                        <div class="mt-auto">
+                            <span class="fw-bold">₹{{ product.price }}</span>
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-dark btn-sm w-100 mt-2">View</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-muted">No products found in this category.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

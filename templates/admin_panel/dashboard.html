@@ -1,0 +1,113 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% block admin_content %}
+<h2 class="fw-bold mb-4">Operations Overview</h2>
+
+<!-- Metrics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-white p-3 border-start border-primary border-4">
+            <span class="text-muted small fw-bold">TOTAL REVENUE</span>
+            <h3 class="fw-bold text-dark mt-1">₹{{ total_sales }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-white p-3 border-start border-success border-4">
+            <span class="text-muted small fw-bold">TOTAL ORDERS</span>
+            <h3 class="fw-bold text-dark mt-1">{{ total_orders }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-white p-3 border-start border-warning border-4">
+            <span class="text-muted small fw-bold">ACTIVE PRODUCTS</span>
+            <h3 class="fw-bold text-dark mt-1">{{ total_products }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-white p-3 border-start border-info border-4">
+            <span class="text-muted small fw-bold">REGISTERED USERS</span>
+            <h3 class="fw-bold text-dark mt-1">{{ total_users }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Chart: Order Status Breakdown -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 h-100">
+            <h5 class="fw-bold mb-3">Order Status Breakdown</h5>
+            <div style="max-height: 280px; display: flex; justify-content: center;">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Inventory Alerts -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 h-100">
+            <h5 class="fw-bold text-danger mb-3">⚠️ Low Stock Alerts (Stock < 5)</h5>
+            {% if low_stock %}
+                <ul class="list-group list-group-flush">
+                    {% for item in low_stock %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                            <strong>{{ item.product.name }}</strong>
+                            <small class="text-muted d-block">Size: {{ item.size }} | Color: {{ item.color }}</small>
+                        </div>
+                        <span class="badge bg-danger rounded-pill">{{ item.stock }} left</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">All products have sufficient stock levels.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders Table -->
+<div class="card border-0 shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Recent Orders</h5>
+        <a href="{% url 'admin_orders' %}" class="btn btn-sm btn-outline-dark">View All</a>
+    </div>
+    <table class="table align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in recent_orders %}
+            <tr>
+                <td>#{{ o.id }}</td>
+                <td>{{ o.user.username }}</td>
+                <td>₹{{ o.total_amount }}</td>
+                <td><span class="badge bg-dark">{{ o.order_status }}</span></td>
+                <td>{{ o.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-muted">No recent orders.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const ctx = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ status_labels|safe }},
+            datasets: [{
+                data: {{ status_counts|safe }},
+                backgroundColor: ['#ffc107', '#0d6efd', '#0dcaf0', '#198754', '#dc3545']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>
+{% endblock %}

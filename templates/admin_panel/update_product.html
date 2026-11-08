@@ -1,0 +1,130 @@
+{% extends 'admin_panel/admin_base.html' %}
+
+{% block admin_content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm col-lg-9 mx-auto rounded-3">
+        <div class="card-header bg-dark text-white py-3">
+            <h5 class="mb-0 fw-bold">Update Cloth Details</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Product Name -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Product Name</label>
+                    <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+                </div>
+
+                <!-- Category Dropdown -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Category</label>
+                    <select name="category" class="form-select" required>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if product.category and cat.id == product.category.id %}selected{% endif %}>
+                                {{ cat.category_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Stock Per Size (S, M, L, XL) -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Stock Per Size (S, M, L, XL)</label>
+                    <div class="row g-2">
+                        <div class="col-3">
+                            <div class="input-group">
+                                <span class="input-group-text fw-bold">S</span>
+                                <input type="number" name="stock_S" class="form-control" value="{{ stock_dict.S }}" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="input-group">
+                                <span class="input-group-text fw-bold">M</span>
+                                <input type="number" name="stock_M" class="form-control" value="{{ stock_dict.M }}" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="input-group">
+                                <span class="input-group-text fw-bold">L</span>
+                                <input type="number" name="stock_L" class="form-control" value="{{ stock_dict.L }}" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="input-group">
+                                <span class="input-group-text fw-bold">XL</span>
+                                <input type="number" name="stock_XL" class="form-control" value="{{ stock_dict.XL }}" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regular & Discount Price -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Regular Price (₹)</label>
+                        <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Discount Price (₹, optional)</label>
+                        <input type="number" step="0.01" name="discount_price" class="form-control" value="{{ product.discount_price|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Main Cover Image -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Main Product Image (Cover)</label>
+                    {% if product.image %}
+                        <div class="mb-2 d-flex align-items-center gap-3">
+                            <img src="{{ product.image.url }}?v={{ product.id }}" width="80" height="80" class="rounded border shadow-sm" style="object-fit: cover;">
+                            <span class="text-muted small">Current Cover Image</span>
+                        </div>
+                    {% endif %}
+                    <input type="file" name="image" class="form-control" accept="image/*">
+                </div>
+
+                <!-- Additional Multiple Gallery Images -->
+                <div class="mb-4 p-3 bg-light rounded border">
+                    <label class="form-label fw-bold">Additional Images (Multiple)</label>
+                    
+                    <!-- Currently uploaded gallery images with delete button -->
+                    {% if product.images.all %}
+                        <div class="d-flex flex-wrap gap-3 mb-3">
+                            {% for img_obj in product.images.all %}
+                                <div class="position-relative text-center border p-1 rounded bg-white shadow-sm">
+                                    <img src="{{ img_obj.image.url }}" width="85" height="85" class="rounded" style="object-fit: cover;">
+                                    <div class="mt-1">
+                                        <a href="{% url 'delete_product_image' img_obj.id %}" 
+                                           onclick="return confirm('Is gallery image ko delete karein?');" 
+                                           class="btn btn-outline-danger btn-xs py-0 px-2 small" style="font-size: 11px;">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        
+                    {% endif %}
+
+                    <!-- Input for new multiple files -->
+                    <input type="file" name="extra_images" class="form-control" accept="image/*" multiple>
+                    
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Description</label>
+                    <textarea name="description" class="form-control" rows="3">{{ product.description }}</textarea>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'admin_products' %}" class="btn btn-secondary px-4">Cancel</a>
+                    <button type="submit" class="btn btn-dark px-4 fw-bold">Update Cloth Details</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

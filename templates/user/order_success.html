@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center py-5">
+    <div class="display-3 text-success mb-3">✓</div>
+    <h1 class="fw-bold">Thank You For Your Order!</h1>
+    <p class="fs-5 text-muted">Your order <strong>#{{ order.id }}</strong> has been placed successfully.</p>
+    <div class="card col-md-6 mx-auto border-0 shadow-sm p-3 my-4 text-start">
+        <p class="mb-1"><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+        <p class="mb-1"><strong>Payment Mode:</strong> {{ order.payment_method }}</p>
+        <p class="mb-1"><strong>Order Status:</strong> <span class="badge bg-warning text-dark">{{ order.order_status }}</span></p>
+        <p class="mb-0"><strong>Delivery Address:</strong> {{ order.address.address }}, {{ order.address.city }} - {{ order.address.pincode }}</p>
+    </div>
+    <a href="{% url 'my_account' %}" class="btn btn-dark me-2">View Your Orders</a>
+    <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Continue Shopping</a>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">👤 Customer Dashboard & Profile</h2>
+    <span class="badge bg-dark px-3 py-2">Customer Account</span>
+</div>
+
+<div class="row g-4">
+    <!-- Left Card: Registration & Address Details -->
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white">
+            <div class="text-center mb-3">
+                <div class="rounded-circle bg-dark text-white mx-auto d-flex align-items-center justify-content-center" style="width: 75px; height: 75px; font-size: 28px; font-weight: bold;">
+                    {{ user.username|make_list|first|upper }}
+                </div>
+                <h4 class="fw-bold mt-2 mb-0">{{ user.username }}</h4>
+                <p class="text-muted small mb-0">{{ user.email }}</p>
+            </div>
+            
+            <hr>
+
+            <h5 class="fw-bold mb-3">Registration Details</h5>
+            <div class="small">
+                <p class="mb-2"><strong>Username:</strong> {{ user.username }}</p>
+                <p class="mb-2"><strong>Email ID:</strong> {{ user.email }}</p>
+                <p class="mb-2">
+                    <strong>Mobile Number:</strong> 
+                    {% if address_info and address_info.phone %}
+                        <span class="text-dark">{{ address_info.phone }}</span>
+                    {% else %}
+                        <span class="text-muted">Not specified</span>
+                    {% endif %}
+                </p>
+                <p class="mb-2">
+                    <strong>Street Address:</strong> 
+                    {% if address_info and address_info.address %}
+                        <span class="text-dark">{{ address_info.address }}</span>
+                    {% else %}
+                        <span class="text-muted">Not specified</span>
+                    {% endif %}
+                </p>
+                <p class="mb-2">
+                    <strong>City & State:</strong> 
+                    {% if address_info and address_info.city %}
+                        <span class="text-dark">{{ address_info.city }}, {{ address_info.state }}</span>
+                    {% else %}
+                        <span class="text-muted">Not specified</span>
+                    {% endif %}
+                </p>
+                <p class="mb-2">
+                    <strong>Pincode:</strong> 
+                    {% if address_info and address_info.pincode %}
+                        <span class="text-dark">{{ address_info.pincode }}</span>
+                    {% else %}
+                        <span class="text-muted">Not specified</span>
+                    {% endif %}
+                </p>
+                <p class="mb-0"><strong>Member Since:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Card: Order History -->
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white">
+            <h5 class="fw-bold mb-3">Order History</h5>
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td><strong>#{{ order.id }}</strong></td>
+                                <td>{{ order.created_at|date:"d M Y" }}</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if order.order_status == 'Delivered' %}bg-success
+                                        {% elif order.order_status == 'Cancelled' %}bg-danger
+                                        {% else %}bg-warning text-dark{% endif %}">
+                                        {{ order.order_status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <p class="mb-2">You haven't placed any orders yet.</p>
+                    <a href="{% url 'product_list' %}" class="btn btn-dark btn-sm">Start Shopping</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

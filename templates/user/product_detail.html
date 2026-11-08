@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Product Images Gallery Section -->
+        <div class="col-md-6 mb-4">
+            <!-- Big Main Featured Image -->
+            <div class="border rounded-3 p-3 text-center bg-white shadow-sm mb-3">
+                <img id="mainProductImg" 
+                     src="{{ gallery_list.0|default:product.image.url }}" 
+                     alt="{{ product.name }}" 
+                     class="img-fluid rounded" 
+                     style="max-height: 420px; width: 100%; object-fit: contain;">
+            </div>
+
+            <!-- Small Thumbnails (Distinct Images Only) -->
+            {% if gallery_list|length > 1 %}
+            <div class="d-flex flex-wrap gap-2">
+                {% for img_url in gallery_list %}
+                    <img src="{{ img_url }}" 
+                         onclick="switchImage(this)" 
+                         class="gallery-thumb border rounded p-1 shadow-sm {% if forloop.first %}border-2 border-dark{% endif %}" 
+                         style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Details (Sizes, Price, Cart) -->
+        <div class="col-md-6">
+            <h2 class="fw-bold">{{ product.name }}</h2>
+            <span class="badge bg-secondary mb-2">{{ product.category.category_name }}</span>
+            
+            <div class="my-3">
+                <h3 class="text-dark d-inline">₹{{ product.discount_price|default:product.price }}</h3>
+                {% if product.discount_price %}
+                    <span class="text-muted text-decoration-line-through ms-2">₹{{ product.price }}</span>
+                {% endif %}
+            </div>
+
+            <p class="text-muted">{{ product.description }}</p>
+
+            <form action="{% url 'add_to_cart' product.id %}" method="POST" class="mt-4">
+                {% csrf_token %}
+                
+                <!-- Size Selection Group -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold d-block">Select Size:</label>
+                    <div class="d-flex flex-wrap gap-2" role="group" aria-label="Size selection">
+                        {% for v in product.variants.all %}
+                            <div>
+                                <input type="radio" 
+                                       class="btn-check" 
+                                       name="size" 
+                                       id="size_{{ v.size }}" 
+                                       value="{{ v.size }}" 
+                                       autocomplete="off" 
+                                       {% if forloop.first %}checked{% endif %}
+                                       {% if v.stock <= 0 %}disabled{% endif %} 
+                                       required>
+                                <label class="btn btn-outline-dark px-3 py-2" for="size_{{ v.size }}">
+                                    <strong>{{ v.size }}</strong> 
+                                    <span class="small opacity-75">({{ v.stock }} left)</span>
+                                </label>
+                            </div>
+                        {% empty %}
+                            <span class="text-danger small">No stock available for this product.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-dark btn-lg px-4 mt-2 shadow-sm">
+                    Add to Cart
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Image Switcher JavaScript -->
+<script>
+function switchImage(element) {
+    // 1. Main big image ko badalna
+    const mainImg = document.getElementById('mainProductImg');
+    if (mainImg) {
+        mainImg.src = element.src;
+    }
+
+    // 2. Sabhi thumbnails se active border class hatana
+    const allThumbs = document.querySelectorAll('.gallery-thumb');
+    allThumbs.forEach(thumb => {
+        thumb.classList.remove('border-dark', 'border-2');
+    });
+
+    // 3. Click kiye gaye thumbnail par border set karna
+    element.classList.add('border-dark', 'border-2');
+}
+</script>
+{% endblock %}
